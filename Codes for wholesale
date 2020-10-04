@@ -1,0 +1,36 @@
+<?php
+
+//  REMOVE COUPONS AND TAX FROM WHOLESALE USERS
+
+function my_filter_woocommerce_coupons_enabled( $enabled ) {
+
+    $current_user = wp_get_current_user();
+
+    $wholesale_user_role = $current_user->has_cap( 'wholesale' );
+    $wholesale_vip_user_role = $current_user->has_cap( 'wholesale_vip' );
+
+    if ( $wholesale_user_role || $wholesale_vip_user_role ) {
+        $enabled = false;
+    }
+
+    return $enabled;
+}
+
+
+function my_filter_woocommerce_calc_tax( $taxes, $price, $rates, $price_includes_tax, $suppress_rounding ) {
+
+    $current_user = wp_get_current_user();
+
+    $wholesale_user_role = $current_user->has_cap( 'wholesale' );
+    $wholesale_vip_user_role = $current_user->has_cap( 'wholesale_vip' );
+
+    if ( $wholesale_user_role || $wholesale_vip_user_role ) {
+        $taxes = array( 1 => "float(0.000)" );
+    }
+
+    return $taxes;
+};
+
+
+add_filter( 'woocommerce_coupons_enabled' , 'my_filter_woocommerce_coupons_enabled' );
+add_filter( 'woocommerce_calc_tax', 
